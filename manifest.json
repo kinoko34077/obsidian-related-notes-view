@@ -1,0 +1,10 @@
+{
+	"id": "related-notes-plugin",
+	"name": "Related Notes Plugin",
+	"version": "0.1.0",
+	"minAppVersion": "0.15.0",
+	"description": "Show related notes (by tags and links) in a sidebar panel.",
+	"author": "KiNoTch.",
+	"authorUrl": "https://github.com/kinotch",
+	"main": "main.js"
+  }

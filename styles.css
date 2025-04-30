@@ -1,0 +1,46 @@
+/* --- 折りたたみ階層の段下げ --- */
+.related-section > .tag-section {
+    margin-left: 0.5rem;
+  }
+  .related-section > .tag-section > .tag-section {
+    margin-left: 1.0rem;
+  }
+  .related-section > .tag-section > .tag-section > .tag-section {
+    margin-left: 1.5rem;
+  }
+  /* 必要に応じてさらに階層深く */
+  .related-section ul {
+    list-style: none;
+    padding-left: 15px;
+    margin: 0;
+  }
+  
+  
+  /* --- 区切り線の余白調整 --- */
+  hr.related-divider {
+    margin-top: 1em;
+    margin-bottom: 1em;
+    border: none;
+    border-top: 1px solid var(--background-modifier-border);
+  }
+  
+  /* --- summary タグ調整（見出しクリックしやすく） --- */
+  details > summary {
+    cursor: pointer;
+    padding: 4px 8px;
+    font-weight: bold;
+  }
+  
+
+  .even-item::before {
+    content: "🔸";
+    margin-right: 0.3em;
+    color: var(--text-accent);
+  }
+  
+  .odd-item::before {
+    content: "🔹";
+    margin-right: 0.3em;
+    color: var(--text-muted);
+  }
+  
