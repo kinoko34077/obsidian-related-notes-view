@@ -1,0 +1,18 @@
+{
+  "tagLimit": 15,
+  "tagLinkLimit": 15,
+  "perTagLinkLimit": 5,
+  "outgoingLinkLimit": 15,
+  "backlinkLimit": 15,
+  "randomizeOrder": false,
+  "fontSize": "12px",
+  "lineHeight": "1.4",
+  "hiddenNotePaths": [],
+  "showTagHierarchy": true,
+  "showDividers": true,
+  "headingStyle": "minimal",
+  "allowTagOverlapOutsideHierarchy": false,
+  "tagHeadingPrefix": "🏷 ",
+  "outgoingHeading": "参照先ノート",
+  "backlinkHeading": "被参照ノート"
+}
