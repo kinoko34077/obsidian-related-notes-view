@@ -56,9 +56,14 @@ Obsidianプラグイン「Related Notes View」は、**現在開いているノ�
 
 ## 🛠 インストール方法（手動）
 
-1. 本リポジトリを `zip` でダウンロード
-2. 解凍し、`main.js` と `manifest.json` を `YourVault/.obsidian/plugins/related-notes-view/` に配置
-3. Obsidian の設定 > プラグイン から本プラグインを有効化
+1. [リリースページ](https://github.com/kinoko34077/obsidian-related-notes-view/releases) から最新版の `.zip` ファイルをダウンロード
+2. 解凍して出てきたファイルを以下のフォルダにコピー：
+
+```
+[あなたのVault]/.obsidian/plugins/related-notes-view/
+```
+
+3. Obsidianを再起動するか、「設定 > プラグイン > コミュニティプラグイン」で「関連ノートビュー（Related Notes View）」を有効化
 
 ※ Obsidian 0.15.0以上が必要です
 
