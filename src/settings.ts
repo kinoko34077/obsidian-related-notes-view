@@ -32,7 +32,7 @@ export class RelatedNotesSettingTab extends PluginSettingTab {
       .setName("タグごとのリンク上限")
       .addText(text => text
         .setPlaceholder("例: 5")
-        .setValue(this.plugin.settings.tagLinkLimit.toString())
+        .setValue(this.plugin.settings.perTagLinkLimit.toString())
         .onChange(async (value) => {
           this.plugin.settings.tagLinkLimit = parseInt(value) || 0;
           await this.plugin.saveSettings();
@@ -114,6 +114,17 @@ export class RelatedNotesSettingTab extends PluginSettingTab {
         .setValue(this.plugin.settings.showDividers)
         .onChange(async (value) => {
           this.plugin.settings.showDividers = value;
+          await this.plugin.saveSettings();
+        })
+      );
+
+    new Setting(containerEl)
+      .setName("リンクのないタグを非表示")
+      .setDesc("関連ノートが0件のタグは非表示にします")
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.hideTagsWithoutLinks)
+        .onChange(async (value) => {
+          this.plugin.settings.hideTagsWithoutLinks = value;
           await this.plugin.saveSettings();
         })
       );

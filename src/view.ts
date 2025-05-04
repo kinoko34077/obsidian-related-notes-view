@@ -110,11 +110,6 @@ export class RelatedNotesView extends ItemView {
       for (const tag in node) {
         const fullTag = prefix ? `${prefix}/${tag}` : tag;
 
-        const details = parentEl.createEl("details", { cls: "tag-section" });
-        details.style.marginLeft = `${level * 0.5}rem`;
-        details.setAttr("open", "");
-        details.createEl("summary", { text: `#${fullTag}` });
-
         const related = allFiles.filter(file => {
           if (file.path === activeFile.path) return false;
           if (this.settings.hiddenNotePaths.includes(file.path)) return false;
@@ -129,30 +124,37 @@ export class RelatedNotesView extends ItemView {
 
         const limited = sorted.slice(0, this.settings.perTagLinkLimit);
 
-        if (limited.length > 0) {
-          const list = details.createEl("ul");
-          list.style.listStyle = "none";
-          limited.forEach((file, index) => {
-            const itemClass = index % 2 === 0 ? "even-item" : "odd-item";
-            const item = list.createEl("li", { cls: itemClass });
-            const link = item.createEl("a", {
-              text: file.basename,
-              href: file.path, // ← これでホバー・右クリックが動く
-            });
-            link.setAttr("data-href", file.path); // Hoverプレビュー対象
-            link.addClass("internal-link"); // Obsidian用クラス            
-            link.onclick = (evt) => {
-              evt.preventDefault();
-              this.app.workspace.openLinkText(file.path, file.path);
-            };
-            link.oncontextmenu = (evt) => {
-              evt.preventDefault();
-              this.app.workspace.trigger("link-contextmenu", evt, link);
-            };
-          });
-        }
+        if (limited.length > 0 || !this.settings.hideTagsWithoutLinks) {
+          const details = parentEl.createEl("details", { cls: "tag-section" });
+          details.style.marginLeft = `${level * 0.5}rem`;
+          details.setAttr("open", "");
+          details.createEl("summary", { text: `#${fullTag}` });
 
-        renderTagNode(node[tag].__children, fullTag, details, level + 1);
+          if (limited.length > 0) {
+            const list = details.createEl("ul");
+            list.style.listStyle = "none";
+            limited.forEach((file, index) => {
+              const itemClass = index % 2 === 0 ? "even-item" : "odd-item";
+              const item = list.createEl("li", { cls: itemClass });
+              const link = item.createEl("a", {
+                text: file.basename,
+                href: file.path,
+              });
+              link.setAttr("data-href", file.path);
+              link.addClass("internal-link");
+              link.onclick = (evt) => {
+                evt.preventDefault();
+                this.app.workspace.openLinkText(file.path, file.path);
+              };
+              link.oncontextmenu = (evt) => {
+                evt.preventDefault();
+                this.app.workspace.trigger("link-contextmenu", evt, link);
+              };
+            });
+          }
+
+          renderTagNode(node[tag].__children, fullTag, details, level + 1);
+        }
       }
     };
 

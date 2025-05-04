@@ -14,9 +14,10 @@ export interface RelatedNotesSettings {
   hiddenNotePaths: string[];
   showTagHierarchy: boolean;
   showDividers: boolean;
+  hideTagsWithoutLinks: boolean;
   headingStyle: "default" | "minimal";
   allowTagOverlapOutsideHierarchy: boolean;
-
+  
 }
 
 export const DEFAULT_SETTINGS: RelatedNotesSettings = {
@@ -32,6 +33,7 @@ export const DEFAULT_SETTINGS: RelatedNotesSettings = {
   hiddenNotePaths: [],
   showTagHierarchy: true,
   showDividers: true,
+  hideTagsWithoutLinks: true,
   headingStyle: "default",
   allowTagOverlapOutsideHierarchy: false,
 };
