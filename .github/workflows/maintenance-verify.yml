@@ -22,6 +22,6 @@ jobs:
       - name: Repository regressions
         run: node --test tests/*.test.mjs
       - name: Typecheck
-        run: npx tsc --noEmit
+        run: npx --yes --package typescript@5.9.2 tsc --noEmit
       - name: Production build
         run: npm run build
