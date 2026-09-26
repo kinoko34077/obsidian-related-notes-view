@@ -34,7 +34,7 @@ export class RelatedNotesSettingTab extends PluginSettingTab {
         .setPlaceholder("例: 5")
         .setValue(this.plugin.settings.perTagLinkLimit.toString())
         .onChange(async (value) => {
-          this.plugin.settings.tagLinkLimit = parseInt(value) || 0;
+          this.plugin.settings.perTagLinkLimit = parseInt(value) || 0;
           await this.plugin.saveSettings();
         })
       );
