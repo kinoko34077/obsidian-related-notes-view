@@ -17,8 +17,12 @@ function section(source, startMarker, endMarker) {
 }
 
 test('outgoing and backlink resolution use Obsidian canonical link resolution instead of basename prefix matching', () => {
-  const outgoing = section(viewSource, 'renderOutgoingLinks(', 'renderBacklinks(');
-  const backlinks = section(viewSource, 'renderBacklinks(', 'async onClose');
+  const outgoing = section(
+    viewSource,
+    '  renderOutgoingLinks(container:',
+    '  renderBacklinks(container:',
+  );
+  const backlinks = section(viewSource, '  renderBacklinks(container:', '  async onClose');
 
   assert.match(outgoing, /getFirstLinkpathDest\(/);
   assert.match(backlinks, /getFirstLinkpathDest\(/);
