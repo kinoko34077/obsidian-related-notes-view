@@ -31,6 +31,15 @@ export default class RelatedNotesPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+    this.refreshRelatedViews();
+  }
+
+  refreshRelatedViews() {
+    for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_RELATED_NOTES)) {
+      if (leaf.view instanceof RelatedNotesView) {
+        leaf.view.requestRender();
+      }
+    }
   }
 
   onunload() {

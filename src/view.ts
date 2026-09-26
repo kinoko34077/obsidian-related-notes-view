@@ -3,9 +3,12 @@ import { ItemView, WorkspaceLeaf, TFile, App, getAllTags } from "obsidian";
 import { VIEW_TYPE_RELATED_NOTES, RelatedNotesSettings } from "./constants";
 import { LinkCache } from "obsidian";
 
+const REFRESH_DELAY_MS = 75;
+
 export class RelatedNotesView extends ItemView {
   app: App;
   settings: RelatedNotesSettings;
+  private refreshTimer: number | null = null;
 
   constructor(leaf: WorkspaceLeaf, app: App, settings: RelatedNotesSettings) {
     super(leaf);
@@ -23,9 +26,31 @@ export class RelatedNotesView extends ItemView {
 
   async onOpen() {
     this.registerEvent(
-      this.app.workspace.on("file-open", () => this.renderView())
+      this.app.workspace.on("file-open", () => this.requestRender())
     );
-    this.renderView();
+    this.registerEvent(
+      this.app.metadataCache.on("changed", () => this.requestRender())
+    );
+    this.registerEvent(
+      this.app.vault.on("create", () => this.requestRender())
+    );
+    this.registerEvent(
+      this.app.vault.on("delete", () => this.requestRender())
+    );
+    this.registerEvent(
+      this.app.vault.on("rename", () => this.requestRender())
+    );
+    void this.renderView();
+  }
+
+  requestRender() {
+    if (this.refreshTimer !== null) {
+      window.clearTimeout(this.refreshTimer);
+    }
+    this.refreshTimer = window.setTimeout(() => {
+      this.refreshTimer = null;
+      void this.renderView();
+    }, REFRESH_DELAY_MS);
   }
 
   async renderView() {
@@ -72,7 +97,7 @@ export class RelatedNotesView extends ItemView {
     if (this.settings.showDividers) container.createEl("hr", { cls: "related-divider" });
 
     this.renderCollapsibleSection(container, "→ アウトゴーイングリンク", (inner) =>
-      this.renderOutgoingLinks(inner, metadata?.links ?? [], allFiles)
+      this.renderOutgoingLinks(inner, metadata?.links ?? [], activeFile)
     );
     if (this.settings.showDividers) container.createEl("hr", { cls: "related-divider" });
 
@@ -89,12 +114,17 @@ export class RelatedNotesView extends ItemView {
     renderContent(details);
   }
 
+  private openFileLink(evt: MouseEvent, file: TFile, sourcePath: string) {
+    evt.preventDefault();
+    const openInNewLeaf = evt.metaKey || evt.ctrlKey;
+    void this.app.workspace.openLinkText(file.path, sourcePath, openInNewLeaf);
+  }
+
   renderTagsSection(container: HTMLElement, tags: string[], activeFile: TFile, allFiles: TFile[]) {
     type TagNode = {
       __children: Record<string, TagNode>;
     };
     const tagTree: Record<string, TagNode> = {};
-    
 
     // ツリー構造にタグを分解して格納
     for (const tag of tags) {
@@ -142,10 +172,7 @@ export class RelatedNotesView extends ItemView {
               });
               link.setAttr("data-href", file.path);
               link.addClass("internal-link");
-              link.onclick = (evt) => {
-                evt.preventDefault();
-                this.app.workspace.openLinkText(file.path, file.path);
-              };
+              link.onclick = (evt) => this.openFileLink(evt, file, activeFile.path);
               link.oncontextmenu = (evt) => {
                 evt.preventDefault();
                 this.app.workspace.trigger("link-contextmenu", evt, link);
@@ -161,10 +188,11 @@ export class RelatedNotesView extends ItemView {
     renderTagNode(tagTree, "", container);
   }
 
-  renderOutgoingLinks(container: HTMLElement, links: LinkCache[], allFiles: TFile[]) {
+  renderOutgoingLinks(container: HTMLElement, links: LinkCache[], activeFile: TFile) {
     const outList = container.createEl("ul");
-    let files = links.map(link => allFiles.find(f => link.link && link.link.startsWith(f.basename)))
-      .filter((f): f is TFile => !!f && !this.settings.hiddenNotePaths.includes(f.path));
+    let files = links
+      .map(link => this.app.metadataCache.getFirstLinkpathDest(link.link, activeFile.path))
+      .filter((file): file is TFile => !!file && !this.settings.hiddenNotePaths.includes(file.path));
 
     files = this.settings.randomizeOrder
       ? files.sort(() => Math.random() - 0.5)
@@ -179,10 +207,7 @@ export class RelatedNotesView extends ItemView {
       });
       linkEl.setAttr("data-href", file.path);
       linkEl.addClass("internal-link");
-      linkEl.onclick = (evt) => {
-        evt.preventDefault();
-        this.app.workspace.openLinkText(file.path, file.path);
-      };
+      linkEl.onclick = (evt) => this.openFileLink(evt, file, activeFile.path);
       linkEl.oncontextmenu = (evt) => {
         evt.preventDefault();
         this.app.workspace.trigger("link-contextmenu", evt, linkEl);
@@ -197,7 +222,10 @@ export class RelatedNotesView extends ItemView {
       if (this.settings.hiddenNotePaths.includes(file.path)) return false;
       const cache = this.app.metadataCache.getFileCache(file);
       const fileLinks = cache?.links ?? [];
-      return fileLinks.some(l => l.link && l.link.startsWith(activeFile.basename));
+      return fileLinks.some(link => {
+        const resolved = this.app.metadataCache.getFirstLinkpathDest(link.link, file.path);
+        return resolved?.path === activeFile.path;
+      });
     });
 
     files = this.settings.randomizeOrder
@@ -213,10 +241,7 @@ export class RelatedNotesView extends ItemView {
       });
       linkEl.setAttr("data-href", file.path);
       linkEl.addClass("internal-link");
-      linkEl.onclick = (evt) => {
-        evt.preventDefault();
-        this.app.workspace.openLinkText(file.path, file.path);
-      };
+      linkEl.onclick = (evt) => this.openFileLink(evt, file, activeFile.path);
       linkEl.oncontextmenu = (evt) => {
         evt.preventDefault();
         this.app.workspace.trigger("link-contextmenu", evt, linkEl);
@@ -224,5 +249,10 @@ export class RelatedNotesView extends ItemView {
     });
   }
 
-  async onClose() {}
+  async onClose() {
+    if (this.refreshTimer !== null) {
+      window.clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+  }
 }
