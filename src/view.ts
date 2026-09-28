@@ -2,6 +2,7 @@
 import { ItemView, WorkspaceLeaf, TFile, App, getAllTags } from "obsidian";
 import { VIEW_TYPE_RELATED_NOTES, RelatedNotesSettings } from "./constants";
 import { LinkCache } from "obsidian";
+import { buildTagTree } from "./runtime-contracts.js";
 
 const REFRESH_DELAY_MS = 75;
 
@@ -121,23 +122,10 @@ export class RelatedNotesView extends ItemView {
   }
 
   renderTagsSection(container: HTMLElement, tags: string[], activeFile: TFile, allFiles: TFile[]) {
-    type TagNode = {
-      __children: Record<string, TagNode>;
-    };
-    const tagTree: Record<string, TagNode> = {};
+    const tagTree = buildTagTree(tags);
 
-    // ツリー構造にタグを分解して格納
-    for (const tag of tags) {
-      const parts = tag.split("/");
-      let node = tagTree;
-      for (const part of parts) {
-        if (!node[part]) node[part] = { __children: {} };
-        node = node[part].__children;
-      }
-    }
-
-    const renderTagNode = (node: Record<string, TagNode>, prefix: string, parentEl: HTMLElement, level = 0) => {
-      for (const tag in node) {
+    const renderTagNode = (node: ReturnType<typeof buildTagTree>, prefix: string, parentEl: HTMLElement, level = 0) => {
+      for (const [tag, tagNode] of node) {
         const fullTag = prefix ? `${prefix}/${tag}` : tag;
 
         const related = allFiles.filter(file => {
@@ -180,7 +168,7 @@ export class RelatedNotesView extends ItemView {
             });
           }
 
-          renderTagNode(node[tag].__children, fullTag, details, level + 1);
+          renderTagNode(tagNode.children, fullTag, details, level + 1);
         }
       }
     };

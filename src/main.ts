@@ -3,12 +3,13 @@ import { Plugin, WorkspaceLeaf } from "obsidian";
 import { RelatedNotesView } from "./view";
 import { VIEW_TYPE_RELATED_NOTES, DEFAULT_SETTINGS, RelatedNotesSettings } from "./constants";
 import { RelatedNotesSettingTab } from "./settings";
+import { normalizeRelatedSettings } from "./runtime-contracts.js";
 
 export default class RelatedNotesPlugin extends Plugin {
   settings: RelatedNotesSettings;
 
   async onload() {
-    this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    this.settings = normalizeRelatedSettings(await this.loadData(), DEFAULT_SETTINGS) as RelatedNotesSettings;
 
     this.registerView(
       VIEW_TYPE_RELATED_NOTES,

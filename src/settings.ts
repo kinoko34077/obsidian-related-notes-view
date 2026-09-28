@@ -1,6 +1,7 @@
 // settings.ts
 import { App, PluginSettingTab, Setting } from "obsidian";
 import RelatedNotesPlugin from "./main";
+import { normalizeDisplayLimit } from "./runtime-contracts.js";
 
 export class RelatedNotesSettingTab extends PluginSettingTab {
   plugin: RelatedNotesPlugin;
@@ -23,7 +24,7 @@ export class RelatedNotesSettingTab extends PluginSettingTab {
         .setPlaceholder("例: 3")
         .setValue(this.plugin.settings.tagLimit.toString())
         .onChange(async (value) => {
-          this.plugin.settings.tagLimit = parseInt(value) || 0;
+          this.plugin.settings.tagLimit = normalizeDisplayLimit(value, this.plugin.settings.tagLimit);
           await this.plugin.saveSettings();
         })
       );
@@ -34,7 +35,7 @@ export class RelatedNotesSettingTab extends PluginSettingTab {
         .setPlaceholder("例: 5")
         .setValue(this.plugin.settings.perTagLinkLimit.toString())
         .onChange(async (value) => {
-          this.plugin.settings.perTagLinkLimit = parseInt(value) || 0;
+          this.plugin.settings.perTagLinkLimit = normalizeDisplayLimit(value, this.plugin.settings.perTagLinkLimit);
           await this.plugin.saveSettings();
         })
       );
@@ -45,7 +46,7 @@ export class RelatedNotesSettingTab extends PluginSettingTab {
         .setPlaceholder("例: 5")
         .setValue(this.plugin.settings.outgoingLinkLimit.toString())
         .onChange(async (value) => {
-          this.plugin.settings.outgoingLinkLimit = parseInt(value) || 0;
+          this.plugin.settings.outgoingLinkLimit = normalizeDisplayLimit(value, this.plugin.settings.outgoingLinkLimit);
           await this.plugin.saveSettings();
         })
       );
@@ -56,7 +57,7 @@ export class RelatedNotesSettingTab extends PluginSettingTab {
         .setPlaceholder("例: 5")
         .setValue(this.plugin.settings.backlinkLimit.toString())
         .onChange(async (value) => {
-          this.plugin.settings.backlinkLimit = parseInt(value) || 0;
+          this.plugin.settings.backlinkLimit = normalizeDisplayLimit(value, this.plugin.settings.backlinkLimit);
           await this.plugin.saveSettings();
         })
       );
