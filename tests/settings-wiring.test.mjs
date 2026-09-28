@@ -17,6 +17,6 @@ function settingBlock(name) {
 
 test('per-tag link limit writes the same property consumed by rendering', () => {
   const block = settingBlock('タグごとのリンク上限');
-  assert.match(block, /this\.plugin\.settings\.perTagLinkLimit\s*=\s*parseInt\(value\)/);
+  assert.match(block, /this\.plugin\.settings\.perTagLinkLimit\s*=\s*normalizeDisplayLimit\(value, this\.plugin\.settings\.perTagLinkLimit\)/);
   assert.doesNotMatch(block, /this\.plugin\.settings\.tagLinkLimit\s*=/);
 });
