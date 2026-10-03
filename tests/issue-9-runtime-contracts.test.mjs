@@ -14,6 +14,14 @@ const defaults = {
   outgoingLinkLimit: 5,
   backlinkLimit: 5,
   randomizeOrder: false,
+  fontSize: '14px',
+  lineHeight: '1.6',
+  hiddenNotePaths: [],
+  showTagHierarchy: true,
+  showDividers: true,
+  hideTagsWithoutLinks: true,
+  headingStyle: 'default',
+  allowTagOverlapOutsideHierarchy: false,
 };
 
 test('tag tree preserves prototype-named segments at every depth', () => {
@@ -55,6 +63,59 @@ test('loaded settings normalize every display limit while preserving valid setti
   assert.equal(normalized.outgoingLinkLimit, 12);
   assert.equal(normalized.backlinkLimit, 5);
   assert.equal(normalized.randomizeOrder, true);
+});
+
+test('loaded settings reject malformed non-numeric persisted values', () => {
+  const normalized = normalizeRelatedSettings({
+    hiddenNotePaths: 'folder/note.md',
+    randomizeOrder: 'true',
+    showTagHierarchy: 0,
+    showDividers: null,
+    hideTagsWithoutLinks: {},
+    allowTagOverlapOutsideHierarchy: 1,
+    headingStyle: 'wide',
+    fontSize: 14,
+    lineHeight: false,
+  }, defaults);
+
+  assert.deepEqual(normalized.hiddenNotePaths, []);
+  assert.equal(normalized.randomizeOrder, false);
+  assert.equal(normalized.showTagHierarchy, true);
+  assert.equal(normalized.showDividers, true);
+  assert.equal(normalized.hideTagsWithoutLinks, true);
+  assert.equal(normalized.allowTagOverlapOutsideHierarchy, false);
+  assert.equal(normalized.headingStyle, 'default');
+  assert.equal(normalized.fontSize, '14px');
+  assert.equal(normalized.lineHeight, '1.6');
+});
+
+test('loaded settings preserve valid non-numeric settings and require string-only hidden paths', () => {
+  const valid = normalizeRelatedSettings({
+    hiddenNotePaths: ['folder/note.md', 'other.md'],
+    randomizeOrder: true,
+    showTagHierarchy: false,
+    showDividers: false,
+    hideTagsWithoutLinks: false,
+    allowTagOverlapOutsideHierarchy: true,
+    headingStyle: 'minimal',
+    fontSize: '16px',
+    lineHeight: '1.8',
+  }, defaults);
+
+  assert.deepEqual(valid.hiddenNotePaths, ['folder/note.md', 'other.md']);
+  assert.equal(valid.randomizeOrder, true);
+  assert.equal(valid.showTagHierarchy, false);
+  assert.equal(valid.showDividers, false);
+  assert.equal(valid.hideTagsWithoutLinks, false);
+  assert.equal(valid.allowTagOverlapOutsideHierarchy, true);
+  assert.equal(valid.headingStyle, 'minimal');
+  assert.equal(valid.fontSize, '16px');
+  assert.equal(valid.lineHeight, '1.8');
+
+  const mixed = normalizeRelatedSettings({
+    hiddenNotePaths: ['ok.md', 42, 'also-ok.md'],
+  }, defaults);
+  assert.deepEqual(mixed.hiddenNotePaths, []);
 });
 
 test('runtime contracts are wired into load, edit, and tag rendering paths', () => {
