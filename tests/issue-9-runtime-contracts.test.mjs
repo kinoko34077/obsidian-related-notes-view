@@ -127,6 +127,6 @@ test('runtime contracts are wired into load, edit, and tag rendering paths', () 
   for (const key of ['tagLimit', 'perTagLinkLimit', 'outgoingLinkLimit', 'backlinkLimit']) {
     assert.match(settingsSource, new RegExp(`settings\\.${key} = normalizeDisplayLimit\\(value, this\\.plugin\\.settings\\.${key}\\)`));
   }
-  assert.match(viewSource, /const tagTree = buildTagTree\(tags\)/);
+  assert.match(viewSource, /const tagTree = buildTagTree\(tags, this\.settings\.showTagHierarchy\)/);
   assert.match(viewSource, /for \(const \[tag, tagNode\] of node\)/);
 });
