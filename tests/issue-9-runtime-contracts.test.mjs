@@ -37,6 +37,16 @@ test('tag tree preserves prototype-named segments at every depth', () => {
   assert.ok(tree.get('ordinary')?.children.get('__proto__')?.children.has('leaf'));
 });
 
+test('tag hierarchy toggle controls slash splitting', () => {
+  const hierarchical = buildTagTree(['parent/child'], true);
+  const flat = buildTagTree(['parent/child'], false);
+
+  assert.deepEqual([...hierarchical.keys()], ['parent']);
+  assert.ok(hierarchical.get('parent')?.children.has('child'));
+  assert.deepEqual([...flat.keys()], ['parent/child']);
+  assert.equal(flat.get('parent/child')?.children.size, 0);
+});
+
 test('display limits normalize runtime values without negative slice semantics', () => {
   assert.equal(normalizeDisplayLimit(-1, 5), 0);
   assert.equal(normalizeDisplayLimit('-2', 5), 0);
@@ -127,6 +137,6 @@ test('runtime contracts are wired into load, edit, and tag rendering paths', () 
   for (const key of ['tagLimit', 'perTagLinkLimit', 'outgoingLinkLimit', 'backlinkLimit']) {
     assert.match(settingsSource, new RegExp(`settings\\.${key} = normalizeDisplayLimit\\(value, this\\.plugin\\.settings\\.${key}\\)`));
   }
-  assert.match(viewSource, /const tagTree = buildTagTree\(tags\)/);
+  assert.match(viewSource, /const tagTree = buildTagTree\(tags, this\.settings\.showTagHierarchy\)/);
   assert.match(viewSource, /for \(const \[tag, tagNode\] of node\)/);
 });
