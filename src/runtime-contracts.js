@@ -76,10 +76,10 @@ export function normalizeRelatedSettings(rawSettings, defaults) {
   return normalized;
 }
 
-export function buildTagTree(tags) {
+export function buildTagTree(tags, hierarchical = true) {
   const root = new Map();
   for (const tag of tags) {
-    const parts = String(tag).split('/');
+    const parts = hierarchical ? String(tag).split('/') : [String(tag)];
     let node = root;
     for (const part of parts) {
       if (!node.has(part)) {

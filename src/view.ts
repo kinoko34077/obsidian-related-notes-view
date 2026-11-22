@@ -122,7 +122,7 @@ export class RelatedNotesView extends ItemView {
   }
 
   renderTagsSection(container: HTMLElement, tags: string[], activeFile: TFile, allFiles: TFile[]) {
-    const tagTree = buildTagTree(tags);
+    const tagTree = buildTagTree(tags, this.settings.showTagHierarchy);
 
     const renderTagNode = (node: ReturnType<typeof buildTagTree>, prefix: string, parentEl: HTMLElement, level = 0) => {
       for (const [tag, tagNode] of node) {
